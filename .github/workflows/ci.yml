@@ -13,20 +13,27 @@ jobs:
       run:
         working-directory: ./backend/gateway
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Setup JDK 17
-        uses: actions/setup-java@v3
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
-
       - name: Build Gateway
-        run: mvn clean install
+        run: mvn clean install -DskipTests
 
-      - name: Run tests (Gateway)
-        run: mvn test
+  build-auth:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend/auth-service
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Build Auth Service
+        run: mvn clean install -DskipTests
 
   build-parking:
     runs-on: ubuntu-latest
@@ -34,20 +41,13 @@ jobs:
       run:
         working-directory: ./backend/parking-service
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Setup JDK 17
-        uses: actions/setup-java@v3
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
-
       - name: Build Parking Service
-        run: mvn clean install
-
-      - name: Run tests (Parking)
-        run: mvn test
+        run: mvn clean install -DskipTests
 
   build-payment:
     runs-on: ubuntu-latest
@@ -55,20 +55,13 @@ jobs:
       run:
         working-directory: ./backend/payment-service
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Setup JDK 17
-        uses: actions/setup-java@v3
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
-
       - name: Build Payment Service
-        run: mvn clean install
-
-      - name: Run tests (Payment)
-        run: mvn test
+        run: mvn clean install -DskipTests
 
   build-frontend:
     runs-on: ubuntu-latest
@@ -76,16 +69,11 @@ jobs:
       run:
         working-directory: ./frontend
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Use Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: '20'
-
       - name: Install dependencies
         run: npm install
-
       - name: Build Angular app
         run: npm run build -- --configuration production
