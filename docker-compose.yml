@@ -1,0 +1,79 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: parking_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: parkingdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  auth-service:
+    build: ./backend/auth-service
+    container_name: auth-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/parkingdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SERVER_PORT: 8081
+    depends_on:
+      - postgres
+    ports:
+      - "8081:8081"
+
+  parking-service:
+    build: ./backend/parking-service
+    container_name: parking-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/parkingdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SERVER_PORT: 8082
+    depends_on:
+      - postgres
+    ports:
+      - "8082:8082"
+
+  payment-service:
+    build: ./backend/payment-service
+    container_name: payment-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/parkingdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SERVER_PORT: 8083
+    depends_on:
+      - postgres
+    ports:
+      - "8083:8083"
+
+  gateway:
+    build: ./backend/gateway
+    container_name: gateway
+    depends_on:
+      - auth-service
+      - parking-service
+      - payment-service
+    environment:
+      SERVER_PORT: 8080
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: ./frontend
+    container_name: parking_frontend
+    depends_on:
+      - gateway
+    ports:
+      - "4200:80"
+    stdin_open: true
+    tty: true
+
+volumes:
+  postgres_data:
